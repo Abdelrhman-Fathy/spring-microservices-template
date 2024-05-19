@@ -1,5 +1,9 @@
 package com.bassiouny.app.ws.controller;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -16,9 +20,12 @@ import org.springframework.web.bind.annotation.RestController;
 import com.bassiouny.app.ws.ui.model.request.UserDetailsRequestModel;
 import com.bassiouny.app.ws.ui.model.response.UserRest;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("users")
 public class UserController {
+	Map<String, UserRest> users;
 
 	@GetMapping()
 	public String getUser(@RequestParam(value = "page", defaultValue = "1") int page,
@@ -40,7 +47,13 @@ public class UserController {
 		user.setLastName("Bassiouni");
 		user.setEmail("abdelrhman.fathy@gmail.com");
 		
-		return new ResponseEntity<UserRest>(user, HttpStatus.OK);
+		if(users.containsKey(userId)) {
+			return new ResponseEntity<>(users.get(userId), HttpStatus.OK); 
+		} else {
+			return new ResponseEntity<>( HttpStatus.NO_CONTENT); 
+		}
+		
+		
 
 	}
 
@@ -54,13 +67,16 @@ public class UserController {
 					MediaType.APPLICATION_XML_VALUE
 					}
 			)
-	public ResponseEntity<UserRest> createUser(@RequestBody UserDetailsRequestModel userReq) 
+	public ResponseEntity<UserRest> createUser(@Valid @RequestBody UserDetailsRequestModel userReq) 
 	{
 		UserRest user = new UserRest();
 		user.setEmail(userReq.getEmail());
 		user.setFirstName(userReq.getFirstName());
 		user.setLastName(userReq.getLastName());
-		
+		String userId = UUID.randomUUID().toString();
+		user.setUserID(userId);
+		if(users == null) users = new HashMap<>();
+		users.put(userId, user);
 		return new ResponseEntity<>(user, HttpStatus.OK);
 	}
 
