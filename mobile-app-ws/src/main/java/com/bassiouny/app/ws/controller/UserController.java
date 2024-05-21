@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.bassiouny.app.ws.exception.UserServiceException;
+import com.bassiouny.app.ws.ui.model.request.UpdateUserDetailsRequestModel;
 import com.bassiouny.app.ws.ui.model.request.UserDetailsRequestModel;
 import com.bassiouny.app.ws.ui.model.response.UserRest;
 
@@ -32,6 +34,8 @@ public class UserController {
 			@RequestParam(value = "limit", defaultValue = "50") int limit,
 			@RequestParam(value = "sort", defaultValue = "desc", required = false) String sort) 
 	{
+		if(true)
+			throw new UserServiceException("UserServiceException is thrown");
 		return "get Users, page: " + page + ", limit:" + limit;
 	}
 
@@ -42,19 +46,11 @@ public class UserController {
 					})
 	public ResponseEntity<UserRest> getUser(@PathVariable String userId) 
 	{
-		UserRest user = new UserRest();
-		user.setFirstName("Abdelrahman");
-		user.setLastName("Bassiouni");
-		user.setEmail("abdelrhman.fathy@gmail.com");
-		
 		if(users.containsKey(userId)) {
 			return new ResponseEntity<>(users.get(userId), HttpStatus.OK); 
 		} else {
-			return new ResponseEntity<>( HttpStatus.NO_CONTENT); 
+			return new ResponseEntity<>( HttpStatus.NOT_FOUND); 
 		}
-		
-		
-
 	}
 
 	@PostMapping(
@@ -80,16 +76,32 @@ public class UserController {
 		return new ResponseEntity<>(user, HttpStatus.OK);
 	}
 
-	@PutMapping
-	public String updateUser() 
+	@PutMapping(path = "/{userId}",
+			produces = {
+					MediaType.APPLICATION_JSON_VALUE, 
+					MediaType.APPLICATION_XML_VALUE
+					}, 
+			consumes = {
+					MediaType.APPLICATION_JSON_VALUE, 
+					MediaType.APPLICATION_XML_VALUE
+					})
+	public ResponseEntity<UserRest> updateUser(@PathVariable String userId, @Valid @RequestBody UpdateUserDetailsRequestModel userDetails) 
 	{
-		return "update user";
+		UserRest existingUser = users.get(userId);
+		if(existingUser == null) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+
+		existingUser.setFirstName(userDetails.getFirstName());
+		existingUser.setLastName(userDetails.getLastName());
+		return new ResponseEntity<>(existingUser, HttpStatus.OK);
 	}
 
-	@DeleteMapping
-	public String deleteUser() 
+	@DeleteMapping(path = "/{userId}")
+	public ResponseEntity<Void> deleteUser(@PathVariable String userId) 
 	{
-		return "delete user";
+		users.remove(userId);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 
 }
