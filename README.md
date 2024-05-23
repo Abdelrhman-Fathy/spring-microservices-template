@@ -44,5 +44,6 @@ This project demonstrates the use of several key technologies and tools in build
 - **Git**: Managed source code version control and collaboration through Git.
 - **SonarLint**: Conducted static code analysis using SonarLint to identify and fix code quality issues.
 - **Dependency Injection**: Applied dependency injection principles to reduce code coupling and enhance modularity and testability.
+- **Spring cloud, Eureka discovery service**: To allow micro-services to scale up/down and register themselves with the discovery service.
 
 This combination of technologies and tools ensures a clean, maintainable, and scalable codebase, adhering to industry best practices and standards.
